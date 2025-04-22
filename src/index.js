@@ -14,9 +14,10 @@ app.post('/obtener-informacion', async (req, res) => {
   if (!address) return res.status(400).json({ error: 'Dirección requerida' });
 
   const browser = await puppeteer.launch({ 
-    headless: false,
+    headless: true,
+    args: ['--no-sandbox', '--disable-http2'],
     defaultViewport: null,
-    args: ['--start-maximized'],
+    //args: ['--start-maximized'],
    });
   //const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
 
@@ -26,6 +27,7 @@ app.post('/obtener-informacion', async (req, res) => {
     // Primer intento: obtener ESID
     try {
       esid = await obtenerESID(address, browser);
+      console.log(esid)
     } catch (error) {
       return res.status(500).json({ success: false, step: 'obtenerESID', error: error.message });
     }
@@ -33,6 +35,7 @@ app.post('/obtener-informacion', async (req, res) => {
     // Segundo intento: obtener Meter Number
     try {
       meterNumber = await obtenerMeterNumber(esid, browser);
+      console.log(meterNumber)
     } catch (error) {
       return res.status(500).json({ success: false, step: 'obtenerMeterNumber', error: error.message });
     }

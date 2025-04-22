@@ -6,6 +6,7 @@ const energy_providers = require('../utils/energy_providers');
 
 async function obtenerConsumo(esid, meterNumber, browser) {
   const page = await browser.newPage();
+  await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36');
   await page.goto('https://www.smartmetertexas.com/home', { waitUntil: 'networkidle2' });
 
   await page.type('#userid', SMART_METER_USER);
