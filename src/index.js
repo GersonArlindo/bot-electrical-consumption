@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const puppeteer = require('puppeteer');
 const obtenerESID = require('./services/obtenerESID');
 const obtenerMeterNumber = require('./services/obtenerMeterNumber');
@@ -8,6 +9,8 @@ const app = express();
 const PORT = process.env.PORT || 4001;
 
 app.use(express.json());
+// Redirigir 'downloads' a 'public/downloads'
+app.use('/downloads', express.static(path.join(__dirname, 'public', 'downloads')));
 
 app.post('/obtener-informacion', async (req, res) => {
   const { address } = req.body;
