@@ -1,10 +1,11 @@
 const energy_providers = [
+    'TXU',
     'Just Energy',
     'Reliant',
     'Direct Energy',
     'Gexa',
+    'Clean sky',
     'Ambit Energy',
-    'TXU',
     'Amigo',
     '4Change Energy',
     'Good Charlie',
@@ -14,7 +15,7 @@ const energy_providers = [
     'Cirro',
     'Payless',
     'Xoom',
-    'Charriot',
+    'Chariot',
     'TriEagle Energy',
     'Discount Power',
     'Constellation Newenergy',
@@ -25,6 +26,5 @@ const energy_providers = [
     'bkv-bpp retail',
     'octopus',
     'frontier',
-
 ];
 module.exports = energy_providers;

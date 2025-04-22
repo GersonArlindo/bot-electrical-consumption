@@ -16,7 +16,7 @@ app.post('/obtener-informacion', async (req, res) => {
   const browser = await puppeteer.launch({ 
     headless: false,
     defaultViewport: null,
-    args: ['--start-maximized']
+    args: ['--start-maximized'],
    });
   //const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
 
@@ -24,18 +24,18 @@ app.post('/obtener-informacion', async (req, res) => {
 
   try {
     // Primer intento: obtener ESID
-    // try {
-    //   esid = await obtenerESID(address, browser);
-    // } catch (error) {
-    //   return res.status(500).json({ success: false, step: 'obtenerESID', error: error.message });
-    // }
+    try {
+      esid = await obtenerESID(address, browser);
+    } catch (error) {
+      return res.status(500).json({ success: false, step: 'obtenerESID', error: error.message });
+    }
 
-    // // Segundo intento: obtener Meter Number
-    // try {
-    //   meterNumber = await obtenerMeterNumber(esid, browser);
-    // } catch (error) {
-    //   return res.status(500).json({ success: false, step: 'obtenerMeterNumber', error: error.message });
-    // }
+    // Segundo intento: obtener Meter Number
+    try {
+      meterNumber = await obtenerMeterNumber(esid, browser);
+    } catch (error) {
+      return res.status(500).json({ success: false, step: 'obtenerMeterNumber', error: error.message });
+    }
 
     try {
       consumo = await obtenerConsumo(esid, meterNumber, browser);
