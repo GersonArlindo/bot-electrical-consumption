@@ -198,14 +198,28 @@ async function obtenerConsumo(esid, meterNumber, browser) {
           await page.waitForSelector('table[data-testid="table"]');
 
           // Extraer datos de la tabla desde el navegador (solo las primeras 3 columnas)
-          const tableData = await page.evaluate(() => {
-            const rows = Array.from(document.querySelectorAll('table[data-testid="table"] tbody tr'));
-            return rows.map(row => {
-              const cells = Array.from(row.querySelectorAll('td'));
-              // Tomar solo las primeras 3 columnas de cada fila
-              return cells.slice(0, 3).map(cell => cell.innerText.trim());
+            const tableData = await page.evaluate(() => {
+              const rows = Array.from(document.querySelectorAll('table[data-testid="table"] tbody tr'));
+              return rows.map(row => {
+                const cells = Array.from(row.querySelectorAll('td'));
+                // Extraer solo los valores numéricos o fechas (sin las etiquetas)
+                return cells.slice(0, 3).map(cell => {
+                  // Intentar extraer solo la fecha o el valor numérico
+                  const text = cell.innerText.trim();
+                  
+                  // Para fechas: intentar extraer solo la fecha MM/DD/YYYY
+                  const dateMatch = text.match(/(\d{2}\/\d{2}\/\d{4})/);
+                  if (dateMatch) return dateMatch[0];
+                  
+                  // Para valores kWh: intentar extraer solo el número
+                  const kwhMatch = text.match(/(\d+)/);
+                  if (kwhMatch) return kwhMatch[0];
+                  
+                  // Si no se encuentra un patrón, devolver el texto original
+                  return text;
+                });
+              });
             });
-          });
 
           console.log('✅ Datos extraídos de la tabla (solo primeras 3 columnas)');
 
