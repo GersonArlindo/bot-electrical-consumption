@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 4001;
 
 app.use(express.json());
 // Redirigir 'downloads' a 'public/downloads'
-app.use('/downloads', express.static(path.join(__dirname, 'public', 'downloads')));
+app.use('/downloads', express.static(path.join(__dirname, '..', 'public', 'downloads')));
 
 app.post('/obtener-informacion', async (req, res) => {
   const { address } = req.body;
