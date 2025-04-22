@@ -56,5 +56,9 @@ app.post('/obtener-informacion', async (req, res) => {
   }
 });
 
+app.get('/', async (req, res) => {
+  res.json({ success: true, msg: "Hello from energybot365 🚀" });
+})
+
 
 app.listen(PORT, () => console.log(`Bot server running on port ${PORT}`));
