@@ -2,10 +2,12 @@ const express = require('express');
 const path = require('path');
 const http = require('http');
 const puppeteer = require('puppeteer');
+const cron = require('node-cron');
 const obtenerESID = require('./services/obtenerESID');
 const obtenerMeterNumber = require('./services/obtenerMeterNumber');
 const obtenerConsumo = require('./services/obtenerConsumo');
 const obtenerESIDWithOncor = require('./services/obtenerESIDOncor')
+const clearUsagesInSMT = require('./services/clearUsages')
 
 const app = express();
 const PORT = process.env.PORT || 4001;
@@ -19,15 +21,15 @@ app.post('/obtener-informacion', async (req, res) => {
   const { address, energy_provider } = req.body;
   if (!address) return res.status(400).json({ error: 'Dirección requerida' });
 
-  const browser = await puppeteer.launch({ 
+  const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-http2'],
     defaultViewport: null,
     //args: ['--start-maximized'],
-   });
+  });
   //const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
 
-  let esid, meterNumber;
+  let esid, meterNumber, consumo, energyProvider;
 
   try {
     // Primer intento: obtener ESID
@@ -47,13 +49,15 @@ app.post('/obtener-informacion', async (req, res) => {
     }
 
     try {
-      consumo = await obtenerConsumo(esid, meterNumber, browser, energy_provider);
+      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider);
+      consumo = consumoData?.consumo
+      energyProvider = consumoData?.energyProvider
     } catch (error) {
       return res.status(500).json({ success: false, step: 'obtenerConsumo', error: error.message });
     }
 
     // Si todo bien, responder
-    res.json({ success: true, esid, meterNumber, consumo });
+    res.json({ success: true, esid, meterNumber, consumo, energyProvider });
 
   } catch (error) {
     res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención de información' });
@@ -63,25 +67,25 @@ app.post('/obtener-informacion', async (req, res) => {
 });
 
 //Este endpoint buscara por Meter Number
-
 app.post('/obtener-informacion/meter_number', async (req, res) => {
-  const { meter_number, energy_provider  } = req.body;
+  const { meter_number, energy_provider } = req.body;
   if (!meter_number) return res.status(400).json({ error: 'Meter Number requerida' });
 
-  const browser = await puppeteer.launch({ 
+  const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-http2'],
     defaultViewport: null,
     //args: ['--start-maximized'],
-   });
+  });
   //const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
 
-  let esid, meterNumber;
+  let esid, meterNumber, consumo, energyProvider;
 
   try {
     // Segundo intento: obtener Meter Number
     try {
-      meterNumber = `${meter_number}LG`
+      // Asegurarse de que termine en 'LG'
+      meterNumber = meter_number.endsWith('LG') ? meter_number : `${meter_number}LG`;
       esid = await obtenerESIDWithOncor(meterNumber, browser);
       esid = `1044372000${esid}`
 
@@ -90,13 +94,15 @@ app.post('/obtener-informacion/meter_number', async (req, res) => {
     }
 
     try {
-      consumo = await obtenerConsumo(esid, meterNumber, browser, energy_provider);
+      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider);
+      consumo = consumoData?.consumo
+      energyProvider = consumoData?.energyProvider
     } catch (error) {
       return res.status(500).json({ success: false, step: 'obtenerConsumo', error: error.message });
     }
 
     // Si todo bien, responder
-    res.json({ success: true, esid, meterNumber, consumo });
+    res.json({ success: true, esid, meterNumber, consumo, energyProvider });
 
   } catch (error) {
     res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención de información' });
@@ -105,10 +111,25 @@ app.post('/obtener-informacion/meter_number', async (req, res) => {
   }
 });
 
-
 app.get('/', async (req, res) => {
   res.json({ success: true, msg: "Hello from energybot365 🚀" });
 })
+
+/**Aqui ejecutaremos la funcion que limpiara todos los Usos que se han obtenido */
+cron.schedule('*/10 * * * *', async () => {
+  try {
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-http2'],
+      defaultViewport: null,
+      //args: ['--start-maximized'],
+    });
+    await clearUsagesInSMT(browser);
+    await browser.close();
+  } catch (error) {
+    console.error('Error en la tarea programada:', error);
+  }
+});
 
 
 // 👉 Cambiamos app.listen por createServer

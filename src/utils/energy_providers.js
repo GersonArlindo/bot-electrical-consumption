@@ -8,6 +8,7 @@ const energy_providers = [
     'Ambit Energy',
     'Amigo',
     '4Change Energy',
+    'APG and E',
     'Good Charlie',
     'Green Mountain',
     'Pulse Power',
