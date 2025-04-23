@@ -116,20 +116,20 @@ app.get('/', async (req, res) => {
 })
 
 /**Aqui ejecutaremos la funcion que limpiara todos los Usos que se han obtenido */
-cron.schedule('*/10 * * * *', async () => {
-  try {
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-http2'],
-      defaultViewport: null,
-      //args: ['--start-maximized'],
-    });
-    await clearUsagesInSMT(browser);
-    await browser.close();
-  } catch (error) {
-    console.error('Error en la tarea programada:', error);
-  }
-});
+// cron.schedule('*/10 * * * *', async () => {
+//   try {
+//     const browser = await puppeteer.launch({
+//       headless: true,
+//       args: ['--no-sandbox', '--disable-http2'],
+//       defaultViewport: null,
+//       //args: ['--start-maximized'],
+//     });
+//     await clearUsagesInSMT(browser);
+//     await browser.close();
+//   } catch (error) {
+//     console.error('Error en la tarea programada:', error);
+//   }
+// });
 
 
 // 👉 Cambiamos app.listen por createServer
