@@ -15,8 +15,11 @@ async function obtenerESIDWithOncor(meter_number, browser) {
         // Capturar el valor de la tercera celda (índice 2) del primer row
         const esIID = await page.$eval('.k-master-row td:nth-child(2)', el => el.innerText);
 
+        const address = await page.$eval('.k-master-row td:nth-child(3)', el => el.innerText)
+
         await page.close();
-        return esIID;
+
+        return {esIID, address};
 
 }
 

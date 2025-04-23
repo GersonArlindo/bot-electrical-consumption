@@ -29,7 +29,7 @@ app.post('/obtener-informacion', async (req, res) => {
   });
   //const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
 
-  let esid, meterNumber, consumo, energyProvider;
+  let esid, meterNumber, consumo, energyProvider, addressObtained;
 
   try {
     // Primer intento: obtener ESID
@@ -42,14 +42,16 @@ app.post('/obtener-informacion', async (req, res) => {
 
     // Segundo intento: obtener Meter Number
     try {
-      meterNumber = await obtenerMeterNumber(esid, browser);
+      const meterNumberData = await obtenerMeterNumber(esid, browser);
+      meterNumber = meterNumberData.meterNumber
+      addressObtained = meterNumberData.address
       console.log(meterNumber)
     } catch (error) {
       return res.status(500).json({ success: false, step: 'obtenerMeterNumber', error: error.message });
     }
 
     try {
-      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider);
+      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider, addressObtained);
       consumo = consumoData?.consumo
       energyProvider = consumoData?.energyProvider
     } catch (error) {
@@ -79,22 +81,24 @@ app.post('/obtener-informacion/meter_number', async (req, res) => {
   });
   //const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
 
-  let esid, meterNumber, consumo, energyProvider;
+  let esid, meterNumber, consumo, energyProvider, addressObtained;
 
   try {
     // Segundo intento: obtener Meter Number
     try {
       // Asegurarse de que termine en 'LG'
       meterNumber = meter_number.endsWith('LG') ? meter_number : `${meter_number}LG`;
-      esid = await obtenerESIDWithOncor(meterNumber, browser);
+      esidData = await obtenerESIDWithOncor(meterNumber, browser);
+      esid = esidData.esIID
       esid = `1044372000${esid}`
+      addressObtained = esidData.address
 
     } catch (error) {
       return res.status(500).json({ success: false, step: 'obtenerESIDWithOncor', error: error.message });
     }
 
     try {
-      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider);
+      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider, addressObtained);
       consumo = consumoData?.consumo
       energyProvider = consumoData?.energyProvider
     } catch (error) {

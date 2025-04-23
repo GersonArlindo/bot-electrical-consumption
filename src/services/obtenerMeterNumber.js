@@ -23,8 +23,10 @@ async function obtenerMeterNumber(esid, browser) {
         // Capturar el valor de la tercera celda (índice 2) del primer row
         const meterNumber = await page.$eval('.k-master-row td:nth-child(4)', el => el.innerText);
 
+        const address = await page.$eval('.k-master-row td:nth-child(3)', el => el.innerText)
+
         await page.close();
-        return meterNumber;
+        return {meterNumber, address};
     // } catch (error) {
     //     //console.error('Ocurrió un error:', error);
     //     return { success: false, error: error.message };
