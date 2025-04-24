@@ -7,6 +7,7 @@ const obtenerESID = require('./services/obtenerESID');
 const obtenerMeterNumber = require('./services/obtenerMeterNumber');
 const obtenerConsumo = require('./services/obtenerConsumo');
 const obtenerESIDWithOncor = require('./services/obtenerESIDOncor')
+const { getBookedAppointmentsDates } = require('./services/userAvailabilityInRepcard')
 const clearUsagesInSMT = require('./services/clearUsages')
 
 const app = express();
@@ -15,6 +16,10 @@ const PORT = process.env.PORT || 4001;
 app.use(express.json());
 // Redirigir 'downloads' a 'public/downloads'
 app.use('/downloads', express.static(path.join(__dirname, '..', 'public', 'downloads')));
+
+app.get('/', async (req, res) => {
+  res.json({ success: true, msg: "Hello from energybot365 🚀" });
+})
 
 //Este endpoint buscara por address
 app.post('/obtener-informacion', async (req, res) => {
@@ -115,10 +120,30 @@ app.post('/obtener-informacion/meter_number', async (req, res) => {
   }
 });
 
-app.get('/', async (req, res) => {
-  res.json({ success: true, msg: "Hello from energybot365 🚀" });
-})
+app.post('/disponibilidad-de-usuarios-en-repcard', async (req, res) => {
+  const { user } = req.body;
+  if (!user) return res.status(400).json({ error: 'User requerido' });
 
+  const browser = await puppeteer.launch({
+    headless: true,
+    slowMo: 50, // Delay base
+    args: ['--no-sandbox', '--disable-http2'],
+    defaultViewport: null,
+    //args: ['--start-maximized'],
+  });
+
+  try {
+    let data = await getBookedAppointmentsDates(user, browser);
+    // Si todo bien, responder
+    res.json({ success: true, data});
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención de información' });
+  } finally {
+    await browser.close();
+  }
+
+})
 /**Aqui ejecutaremos la funcion que limpiara todos los Usos que se han obtenido */
 // cron.schedule('*/10 * * * *', async () => {
 //   try {
