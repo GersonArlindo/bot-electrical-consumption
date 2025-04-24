@@ -51,7 +51,7 @@ app.post('/obtener-informacion', async (req, res) => {
     }
 
     try {
-      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider, addressObtained);
+      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider);
       consumo = consumoData?.consumo
       energyProvider = consumoData?.energyProvider
     } catch (error) {
@@ -59,7 +59,7 @@ app.post('/obtener-informacion', async (req, res) => {
     }
 
     // Si todo bien, responder
-    res.json({ success: true, esid, meterNumber, consumo, energyProvider });
+    res.json({ success: true, esid, meterNumber, consumo, energyProvider, addressObtained });
 
   } catch (error) {
     res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención de información' });
@@ -98,7 +98,7 @@ app.post('/obtener-informacion/meter_number', async (req, res) => {
     }
 
     try {
-      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider, addressObtained);
+      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider);
       consumo = consumoData?.consumo
       energyProvider = consumoData?.energyProvider
     } catch (error) {
@@ -106,7 +106,7 @@ app.post('/obtener-informacion/meter_number', async (req, res) => {
     }
 
     // Si todo bien, responder
-    res.json({ success: true, esid, meterNumber, consumo, energyProvider });
+    res.json({ success: true, esid, meterNumber, consumo, energyProvider, addressObtained });
 
   } catch (error) {
     res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención de información' });
