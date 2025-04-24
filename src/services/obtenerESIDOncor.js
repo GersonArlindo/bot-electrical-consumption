@@ -9,18 +9,35 @@ async function obtenerESIDWithOncor(meter_number, browser) {
         await page.type('#essid-meter-no', meter_number);
         await page.click('#textsearch');
 
-        // Esperar a que aparezca la tabla con el resultado
-        await page.waitForSelector('.k-master-row', { timeout: 10000 });
+        try {
+                // Esperar que cargue ya sea un resultado válido o el mensaje de error
+                await page.waitForSelector('tbody tr', { timeout: 10000 });
 
-        // Capturar el valor de la tercera celda (índice 2) del primer row
-        const esIID = await page.$eval('.k-master-row td:nth-child(2)', el => el.innerText);
+                // Verificar si existe el row con clase .k-master-row (éxito)
+                const rowExists = await page.$('.k-master-row');
 
-        const address = await page.$eval('.k-master-row td:nth-child(3)', el => el.innerText)
+                if (rowExists) {
+                        const esIID = await page.$eval('.k-master-row td:nth-child(2)', el => el.innerText.trim());
+                        const address = await page.$eval('.k-master-row td:nth-child(3)', el => el.innerText.trim());
+                        if (!page.isClosed()) {
+                                await page.close();
+                        }
+                        return { esIID, address };
+                } else {
+                        // Si no hay resultados válidos, extraer mensaje del segundo <td>
+                        const errorMsg = await page.$eval('tbody tr td:nth-child(2)', el => el.innerText.trim());
+                        if (!page.isClosed()) {
+                                await page.close();
+                        }
+                        throw new Error(errorMsg);
+                }
 
-        await page.close();
-
-        return {esIID, address};
-
+        } catch (e) {
+                if (!page.isClosed()) {
+                        await page.close();
+                }
+                throw new Error(e.message || 'Unknown error occurred');
+        }
 }
 
 module.exports = obtenerESIDWithOncor;

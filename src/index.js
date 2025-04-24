@@ -94,7 +94,7 @@ app.post('/obtener-informacion/meter_number', async (req, res) => {
       addressObtained = esidData.address
 
     } catch (error) {
-      return res.status(500).json({ success: false, step: 'obtenerESIDWithOncor', error: error.message });
+      return res.status(400).json({ success: false, step: 'obtenerESIDWithOncor', error: error.message });
     }
 
     try {
