@@ -30,11 +30,12 @@ app.post('/obtener-informacion', async (req, res) => {
     headless: true,
     args: ['--no-sandbox', '--disable-http2'],
     defaultViewport: null,
+    slowMo: 20, // Delay base
     //args: ['--start-maximized'],
   });
   //const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
 
-  let esid, meterNumber, consumo, energyProvider, addressObtained;
+  let esid, meterNumber, consumo, energyProvider, addressObtained, uniqueDescription;
 
   try {
     // Primer intento: obtener ESID
@@ -59,6 +60,8 @@ app.post('/obtener-informacion', async (req, res) => {
       const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider);
       consumo = consumoData?.consumo
       energyProvider = consumoData?.energyProvider
+      uniqueDescription = consumoData?.uniqueDescription
+      clearUsagesInSMT(uniqueDescription)
     } catch (error) {
       return res.status(500).json({ success: false, step: 'obtenerConsumo', error: error.message });
     }
@@ -82,11 +85,12 @@ app.post('/obtener-informacion/meter_number', async (req, res) => {
     headless: true,
     args: ['--no-sandbox', '--disable-http2'],
     defaultViewport: null,
+    slowMo: 20, // Delay base
     //args: ['--start-maximized'],
   });
   //const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
 
-  let esid, meterNumber, consumo, energyProvider, addressObtained;
+  let esid, meterNumber, consumo, energyProvider, addressObtained, uniqueDescription;
 
   try {
     // Segundo intento: obtener Meter Number
@@ -107,6 +111,8 @@ app.post('/obtener-informacion/meter_number', async (req, res) => {
       const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider);
       consumo = consumoData?.consumo
       energyProvider = consumoData?.energyProvider
+      uniqueDescription = consumoData?.uniqueDescription
+      clearUsagesInSMT(uniqueDescription)
     } catch (error) {
       return res.status(500).json({ success: false, step: 'obtenerConsumo', error: error.message });
     }
