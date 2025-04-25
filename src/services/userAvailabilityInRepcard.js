@@ -112,7 +112,17 @@ async function getBookedAppointmentsDates(user, browser) {
     await page.waitForSelector('.ui-datepicker-calendar');
 
     // 7. Hacer clic en el día actual (que tiene la clase ui-datepicker-today)
-    await page.click('.ui-datepicker-today a');
+    await page.evaluate(() => {
+        // Buscar todas las celdas de día que no estén deshabilitadas
+        const availableDays = document.querySelectorAll('.ui-datepicker-calendar td:not(.ui-state-disabled) a, .ui-datepicker-calendar td a:not([aria-disabled="true"])');
+        
+        // Si hay días disponibles, hacer clic en el primero
+        if (availableDays.length > 0) {
+          availableDays[0].click();
+          return true;
+        }
+        return false;
+    });
 
     // 9. Hacer clic en el selector de tiempo para abrir el dropdown
     await page.click('#SelectTimeSidebar');
