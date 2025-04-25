@@ -92,7 +92,8 @@ app.post('/obtener-informacion/meter_number', async (req, res) => {
     // Segundo intento: obtener Meter Number
     try {
       // Asegurarse de que termine en 'LG'
-      meterNumber = meter_number.endsWith('LG') ? meter_number : `${meter_number}LG`;
+      let meterNumber = meter_number.replace(/\s+/g, '');
+      meterNumber = meterNumber.endsWith('LG') ? meterNumber : `${meterNumber}LG`;
       esidData = await obtenerESIDWithOncor(meterNumber, browser);
       esid = esidData.esIID
       esid = `1044372000${esid}`
