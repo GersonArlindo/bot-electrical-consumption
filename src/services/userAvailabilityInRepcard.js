@@ -3,6 +3,8 @@ const { REPCARD_USER, REPCARD_PASSWORD, REPCARD_API_KEY } = require('../utils/co
 
 async function getBookedAppointmentsDates(user, browser) {
     const page = await browser.newPage();
+    // Configura la zona horaria a nivel de página
+    await page.emulateTimezone('America/Chicago');
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36');
     await page.goto('https://app.repcard.com/admin/login', { waitUntil: 'networkidle2' });
 
