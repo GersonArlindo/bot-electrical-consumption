@@ -252,12 +252,10 @@ async function getProposalAuroraLightreach(customer_name, address, annual_energy
         console.error('No se encontró el botón "Place"');
     }
 
-    // Buscar todos los botones con el test ID correspondiente
-    await new Promise(resolve => setTimeout(resolve, 10000));
+    // Esperar a que aparezca el botón "Finalize" y clickearlo
+    await page.waitForSelector('button[data-testid="prism-cad-view-simulation-button"] span', { visible: true });
+
     const botonesFinalize = await page.$$('button[data-testid="prism-cad-view-simulation-button"]');
-
-    let botonClickeado = false;
-
     for (const boton of botonesFinalize) {
         const span = await boton.$('span');
         if (span) {
@@ -265,24 +263,16 @@ async function getProposalAuroraLightreach(customer_name, address, annual_energy
             if (texto.trim() === 'Finalize') {
                 await boton.click();
                 console.log('Botón "Finalize" clickeado correctamente.');
-                botonClickeado = true;
                 break;
             }
         }
     }
 
-    if (!botonClickeado) {
-        // Si nunca se encontró y clickeó el botón "Finalize"
-        const currentUrl = await page.url();
-        return { data: currentUrl, status: true };
-    }
-
-    // Si se clickeó, esperar un poco y continuar
-    await new Promise(resolve => setTimeout(resolve, 4000));
+    await new Promise(resolve => setTimeout(resolve, 4000)); // ✅ Correcto
 
     const currentUrl = await page.url();
     console.log('URL después de finalizar:', currentUrl);
-    return { data: currentUrl, status: true };
+    return { data: currentUrl, status: true }
 
 }
 
