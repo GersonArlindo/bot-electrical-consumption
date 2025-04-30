@@ -158,11 +158,11 @@ app.post('/proposal/aurora/lightreach', async (req, res) => {
   if (!address || !annual_energy_estimate) return res.status(400).json({ error: 'Address or annual_energy_estimate is required' });
 
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     slowMo: 50, // Delay base
-    //args: ['--no-sandbox', '--disable-http2'],
+    args: ['--no-sandbox', '--disable-http2'],
     defaultViewport: null,
-    args: ['--start-maximized'],
+    //args: ['--start-maximized'],
   });
 
   try {
