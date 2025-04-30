@@ -233,4 +233,4 @@ async function getAvailabilityForCloser(appointmentsArray, repName) {
 
 
 
-module.exports = { getBookedAppointmentsDates };;
+module.exports = { getBookedAppointmentsDates };

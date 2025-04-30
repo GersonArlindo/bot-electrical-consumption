@@ -8,6 +8,7 @@ const obtenerMeterNumber = require('./services/obtenerMeterNumber');
 const obtenerConsumo = require('./services/obtenerConsumo');
 const obtenerESIDWithOncor = require('./services/obtenerESIDOncor')
 const { getBookedAppointmentsDates } = require('./services/userAvailabilityInRepcard')
+const { getProposalAuroraLightreach } = require('./services/proposalRequest')
 const clearUsagesInSMT = require('./services/clearUsages')
 
 const app = express();
@@ -151,6 +152,32 @@ app.post('/disponibilidad-de-usuarios-en-repcard', async (req, res) => {
   }
 
 })
+
+app.post('/proposal/aurora/lightreach', async (req, res) => {
+  let { customer_name, address, annual_energy_estimate,  } = req.body;
+  if (!address || !annual_energy_estimate) return res.status(400).json({ error: 'Address or annual_energy_estimate is required' });
+
+  const browser = await puppeteer.launch({
+    headless: false,
+    slowMo: 50, // Delay base
+    //args: ['--no-sandbox', '--disable-http2'],
+    defaultViewport: null,
+    args: ['--start-maximized'],
+  });
+
+  try {
+    customer_name = customer_name ? customer_name : `Proposal-${Date.now()}`
+    let data = await getProposalAuroraLightreach(customer_name, address, annual_energy_estimate, browser);
+    // Si todo bien, responder
+    res.json({ success: true, data});
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención de proposal' });
+  } finally {
+    await browser.close();
+  }
+})
+
 /**Aqui ejecutaremos la funcion que limpiara todos los Usos que se han obtenido */
 // cron.schedule('*/10 * * * *', async () => {
 //   try {
