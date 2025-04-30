@@ -59,18 +59,10 @@ async function getProposalAuroraLightreach(customer_name, address, annual_energy
     await page.click('div[data-component="cascade-menu"][label="Energy usage"] button');
 
     // Paso 1: Esperar a que aparezca el dropdown button (cualquier texto que tenga)
-    await page.waitForSelector('[data-testid="energy-consumption-core-load-profile-input-method"] button[data-subcomponent="dropdown-trigger"]');
+    await page.waitForSelector('[data-testid="energy-consumption-core-load-profile-input-method"] button[data-subcomponent="dropdown-trigger"]', { timeout: 5000 });
 
     // Paso 2: Hacer clic en ese dropdown específico
     await page.click('[data-testid="energy-consumption-core-load-profile-input-method"] button[data-subcomponent="dropdown-trigger"]');
-
-
-    // Paso 3: Esperar a que aparezcan las opciones del dropdown
-    // Nota: ajusta el selector para que coincida con la estructura de las opciones
-    await new Promise(resolve => setTimeout(resolve, 1000)); // ✅ Correcto
-
-    // Paso 4: Buscar y hacer clic en la opción específica "Annual energy estimate"
-    // Buscar por texto exacto usando XPath
 
     // Esperar a que al menos una opción del menú esté visible
     await page.waitForSelector('[role="option"], [role="menuitem"], li.dropdown-item, .dropdown-menu *', { timeout: 5000 });
@@ -260,10 +252,12 @@ async function getProposalAuroraLightreach(customer_name, address, annual_energy
         console.error('No se encontró el botón "Place"');
     }
 
-    // Esperar a que aparezca el botón "Finalize" y clickearlo
-    await page.waitForSelector('button[data-testid="prism-cad-view-simulation-button"] span', { visible: true });
-
+    // Buscar todos los botones con el test ID correspondiente
+    await new Promise(resolve => setTimeout(resolve, 10000));
     const botonesFinalize = await page.$$('button[data-testid="prism-cad-view-simulation-button"]');
+
+    let botonClickeado = false;
+
     for (const boton of botonesFinalize) {
         const span = await boton.$('span');
         if (span) {
@@ -271,16 +265,24 @@ async function getProposalAuroraLightreach(customer_name, address, annual_energy
             if (texto.trim() === 'Finalize') {
                 await boton.click();
                 console.log('Botón "Finalize" clickeado correctamente.');
+                botonClickeado = true;
                 break;
             }
         }
     }
 
-    await new Promise(resolve => setTimeout(resolve, 4000)); // ✅ Correcto
+    if (!botonClickeado) {
+        // Si nunca se encontró y clickeó el botón "Finalize"
+        const currentUrl = await page.url();
+        return { data: currentUrl, status: true };
+    }
+
+    // Si se clickeó, esperar un poco y continuar
+    await new Promise(resolve => setTimeout(resolve, 4000));
 
     const currentUrl = await page.url();
     console.log('URL después de finalizar:', currentUrl);
-    return { data: currentUrl, status: true }
+    return { data: currentUrl, status: true };
 
 }
 
