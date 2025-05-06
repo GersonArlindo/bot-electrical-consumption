@@ -75,9 +75,12 @@ async function getBookedAppointmentsDates(user, browser) {
     const repAppointments = citas.filter(app => app[2] == user);
 
     // 1. Hacer clic en "Create Appointment"
+    await page.waitForSelector('#openCalendarType', { visible: true });
+    await page.screenshot({ path: `screenshots/screenshot-${Date.now()}.png` });
     await page.click('#openCalendarType');
+    await page.screenshot({ path: `screenshots/screenshot-${Date.now()}.png` });
     await page.waitForSelector('li.open-sidebar-create-appointment', { visible: true });
-
+    await page.screenshot({ path: `screenshots/screenshot-${Date.now()}.png` });
     // 2. Seleccionar el calendario "Team Calendar"
     await page.evaluate(() => {
         const calendars = Array.from(document.querySelectorAll('li.open-sidebar-create-appointment'));
