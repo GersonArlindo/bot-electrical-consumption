@@ -135,8 +135,12 @@ app.post('/disponibilidad-de-usuarios-en-repcard', async (req, res) => {
   const browser = await puppeteer.launch({
     headless: true,
     slowMo: 50, // Delay base
-    args: ['--no-sandbox', '--disable-http2', '--timezone=America/Chicago'],
-    defaultViewport: null,
+    args: ['--no-sandbox', '--disable-http2', '--window-size=1920,1080', '--timezone=America/Chicago'],
+    //defaultViewport: null,
+    defaultViewport: {
+      width: 1920,
+      height: 1080,
+    },
     //args: ['--start-maximized', '--timezone=America/Chicago'],
   });
 
