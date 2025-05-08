@@ -7,6 +7,7 @@ const obtenerESID = require('./services/obtenerESID');
 const obtenerMeterNumber = require('./services/obtenerMeterNumber');
 const obtenerConsumo = require('./services/obtenerConsumo');
 const obtenerESIDWithOncor = require('./services/obtenerESIDOncor')
+const obtenerESIDWhithElectricityPlans = require('./services/obtenerESIDWhithElectricityPlans')
 const { getBookedAppointmentsDates } = require('./services/userAvailabilityInRepcard')
 const { getProposalAuroraLightreach } = require('./services/proposalRequest')
 const clearUsagesInSMT = require('./services/clearUsages')
@@ -70,6 +71,54 @@ app.post('/obtener-informacion', async (req, res) => {
     // Si todo bien, responder
     res.json({ success: true, esid, meterNumber, consumo, energyProvider, addressObtained });
 
+  } catch (error) {
+    res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención de información' });
+  } finally {
+    await browser.close();
+  }
+});
+
+app.post('/obtener-informacion/texas-new-mexico', async (req, res) => {
+  const { address, meterNumber, energy_provider } = req.body;
+  if (!address) return res.status(400).json({ error: 'Dirección requerida' });
+
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--window-size=1920,1080', '--disable-http2'],
+    //defaultViewport: null,
+    defaultViewport: {
+      width: 1920,
+      height: 1080,
+    },
+    slowMo: 20, // Delay base
+    //args: ['--start-maximized'],
+  });
+  //const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+
+  let esid, consumo, energyProvider, uniqueDescription;
+
+  try {
+    // Primer intento: obtener ESID
+    try {
+      esid = await obtenerESIDWhithElectricityPlans(address, browser);
+      console.log(esid)
+    } catch (error) {
+      return res.status(500).json({ success: false, step: 'obtenerESID', error: error.message });
+    }
+
+    try {
+      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider);
+      consumo = consumoData?.consumo
+      energyProvider = consumoData?.energyProvider
+      uniqueDescription = consumoData?.uniqueDescription
+      clearUsagesInSMT(uniqueDescription)
+    } catch (error) {
+      return res.status(500).json({ success: false, step: 'obtenerConsumo', error: error.message });
+    }
+
+    // Si todo bien, responder
+    res.json({ success: true, esid, meterNumber, consumo, energyProvider, addressObtained: address });
+    //res.json({ success: true, esid })
   } catch (error) {
     res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención de información' });
   } finally {
