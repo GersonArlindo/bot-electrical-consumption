@@ -79,15 +79,15 @@ app.post('/obtener-informacion', async (req, res) => {
 });
 
 app.post('/obtener-informacion/texas-new-mexico', async (req, res) => {
-  const { address, meterNumber, energy_provider } = req.body;
+  const { address, meter_number, energy_provider } = req.body;
   if (!address) return res.status(400).json({ error: 'Dirección requerida' });
-  // Validar y limpiar meterNumber
-  if (!meterNumber || !/^\d{9}/.test(meterNumber)) {
+  // Validar y limpiar meter_number
+  if (!meter_number || !/^\d{9}/.test(meter_number)) {
     return res.status(400).json({ error: 'The meter number must have 9 digits.' });
   }
 
   // Limpiar cualquier texto adicional después de los 9 dígitos
-  meterNumber = meterNumber.substring(0, 9);
+  meter_number = meter_number.substring(0, 9);
 
   const browser = await puppeteer.launch({
     headless: true,
@@ -114,7 +114,7 @@ app.post('/obtener-informacion/texas-new-mexico', async (req, res) => {
     }
 
     try {
-      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider);
+      const consumoData = await obtenerConsumo(esid, meter_number, browser, energy_provider);
       consumo = consumoData?.consumo
       energyProvider = consumoData?.energyProvider
       uniqueDescription = consumoData?.uniqueDescription
@@ -124,7 +124,7 @@ app.post('/obtener-informacion/texas-new-mexico', async (req, res) => {
     }
 
     // Si todo bien, responder
-    res.json({ success: true, esid, meterNumber, consumo, energyProvider, addressObtained: address });
+    res.json({ success: true, esid, meterNumber: meter_number, consumo, energyProvider, addressObtained: address });
     //res.json({ success: true, esid })
   } catch (error) {
     res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención de información' });
