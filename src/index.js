@@ -79,7 +79,8 @@ app.post('/obtener-informacion', async (req, res) => {
 });
 
 app.post('/obtener-informacion/texas-new-mexico', async (req, res) => {
-  const { address, meter_number, energy_provider } = req.body;
+  const { address, energy_provider } = req.body;
+  let { meter_number } = req.body; // Cambiado a let
   if (!address) return res.status(400).json({ error: 'Dirección requerida' });
   // Validar y limpiar meter_number
   if (!meter_number || !/^\d{9}/.test(meter_number)) {
