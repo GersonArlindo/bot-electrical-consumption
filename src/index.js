@@ -81,6 +81,13 @@ app.post('/obtener-informacion', async (req, res) => {
 app.post('/obtener-informacion/texas-new-mexico', async (req, res) => {
   const { address, meterNumber, energy_provider } = req.body;
   if (!address) return res.status(400).json({ error: 'Dirección requerida' });
+  // Validar y limpiar meterNumber
+  if (!meterNumber || !/^\d{9}/.test(meterNumber)) {
+    return res.status(400).json({ error: 'The meter number must have 9 digits.' });
+  }
+
+  // Limpiar cualquier texto adicional después de los 9 dígitos
+  meterNumber = meterNumber.substring(0, 9);
 
   const browser = await puppeteer.launch({
     headless: true,
