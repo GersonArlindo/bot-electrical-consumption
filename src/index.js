@@ -11,6 +11,8 @@ const obtenerESIDWhithElectricityPlans = require('./services/obtenerESIDWhithEle
 const { getBookedAppointmentsDates } = require('./services/userAvailabilityInRepcard')
 const { getProposalAuroraLightreach } = require('./services/proposalRequest')
 const clearUsagesInSMT = require('./services/clearUsages')
+const obtenerKpiReport = require('./services/kpiReportBrightFuture')
+const obtenerDisenioSubContractor = require('./services/subcontractorhub')
 
 const app = express();
 const PORT = process.env.PORT || 4001;
@@ -22,6 +24,7 @@ app.use('/downloads', express.static(path.join(__dirname, '..', 'public', 'downl
 app.get('/', async (req, res) => {
   res.json({ success: true, msg: "Hello from energybot365 🚀" });
 })
+
 
 //Este endpoint buscara por address
 app.post('/obtener-informacion', async (req, res) => {
@@ -204,7 +207,7 @@ app.post('/disponibilidad-de-usuarios-en-repcard', async (req, res) => {
   try {
     let data = await getBookedAppointmentsDates(user, browser);
     // Si todo bien, responder
-    res.json({ success: true, data});
+    res.json({ success: true, data });
   } catch (error) {
     console.log(error)
     res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención de información' });
@@ -215,14 +218,17 @@ app.post('/disponibilidad-de-usuarios-en-repcard', async (req, res) => {
 })
 
 app.post('/proposal/aurora/lightreach', async (req, res) => {
-  let { customer_name, address, annual_energy_estimate,  } = req.body;
+  let { customer_name, address, annual_energy_estimate, } = req.body;
   if (!address || !annual_energy_estimate) return res.status(400).json({ error: 'Address or annual_energy_estimate is required' });
 
   const browser = await puppeteer.launch({
     headless: true,
     slowMo: 50, // Delay base
-    args: ['--no-sandbox', '--disable-http2'],
-    defaultViewport: null,
+    args: ['--no-sandbox', '--window-size=1920,1080', '--disable-http2'],
+    defaultViewport: {
+      width: 1920,
+      height: 1080,
+    },
     //args: ['--start-maximized'],
   });
 
@@ -230,10 +236,55 @@ app.post('/proposal/aurora/lightreach', async (req, res) => {
     customer_name = customer_name ? customer_name : `Proposal-${Date.now()}`
     let data = await getProposalAuroraLightreach(customer_name, address, annual_energy_estimate, browser);
     // Si todo bien, responder
-    res.json({ success: true, data});
+    res.json({ success: true, data });
   } catch (error) {
     console.log(error)
     res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención de proposal' });
+  } finally {
+    await browser.close();
+  }
+})
+
+app.post('/kpi-report', async (req, res) => {
+  const browser = await puppeteer.launch({
+    headless: false,
+    slowMo: 50, // Delay base
+    //args: ['--no-sandbox', '--window-size=1920,1080', '--disable-http2'],
+    defaultViewport: {
+      width: 1920,
+      height: 1080,
+    },
+    args: ['--start-maximized'],
+  });
+
+  try {
+    let data = await obtenerKpiReport(browser);
+    res.json({ success: true, data });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención del reporte' });
+  } finally {
+    await browser.close();
+  }
+})
+
+
+app.post('/design', async (req, res) => {
+   let { address, first_name, last_name, email, phone } = req.body
+   const browser = await puppeteer.launch({
+    headless: false,
+    slowMo: 50, // Delay base
+    //args: ['--no-sandbox', '--window-size=1920,1080', '--disable-http2'],
+    defaultViewport: null,
+    args: ['--start-maximized'],
+  });
+
+  try {
+    let data = await obtenerDisenioSubContractor(browser, address, first_name, last_name, email, phone);
+    res.json({ success: true, data });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención del reporte' });
   } finally {
     await browser.close();
   }
