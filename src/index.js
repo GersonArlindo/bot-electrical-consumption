@@ -28,7 +28,7 @@ app.get('/', async (req, res) => {
 
 //Este endpoint buscara por address
 app.post('/obtener-informacion', async (req, res) => {
-  const { address, energy_provider } = req.body;
+  const { address, energy_provider, type } = req.body;
   if (!address) return res.status(400).json({ error: 'Dirección requerida' });
 
   const browser = await puppeteer.launch({
@@ -62,7 +62,7 @@ app.post('/obtener-informacion', async (req, res) => {
     }
 
     try {
-      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider);
+      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider, type);
       consumo = consumoData?.consumo
       energyProvider = consumoData?.energyProvider
       uniqueDescription = consumoData?.uniqueDescription
@@ -118,7 +118,7 @@ app.post('/obtener-informacion/texas-new-mexico', async (req, res) => {
     }
 
     try {
-      const consumoData = await obtenerConsumo(esid, meter_number, browser, energy_provider);
+      const consumoData = await obtenerConsumo(esid, meter_number, browser, energy_provider, type = "monthly");
       consumo = consumoData?.consumo
       energyProvider = consumoData?.energyProvider
       uniqueDescription = consumoData?.uniqueDescription
@@ -139,7 +139,7 @@ app.post('/obtener-informacion/texas-new-mexico', async (req, res) => {
 
 //Este endpoint buscara por Meter Number
 app.post('/obtener-informacion/meter_number', async (req, res) => {
-  const { meter_number, energy_provider } = req.body;
+  const { meter_number, energy_provider, type } = req.body;
   if (!meter_number) return res.status(400).json({ error: 'Meter Number requerida' });
 
   const browser = await puppeteer.launch({
@@ -169,7 +169,7 @@ app.post('/obtener-informacion/meter_number', async (req, res) => {
     }
 
     try {
-      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider);
+      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider, type);
       consumo = consumoData?.consumo
       energyProvider = consumoData?.energyProvider
       uniqueDescription = consumoData?.uniqueDescription
