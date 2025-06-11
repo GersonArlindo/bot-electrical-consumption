@@ -31,6 +31,7 @@ const energy_providers = [
     'Snap energy',
     'ranchero power',
     'octopus',
-    'frontier'
+    'frontier',
+    'YENTA ENERGY LP DBA CLYDE ENERGY'
 ];
 module.exports = energy_providers;
