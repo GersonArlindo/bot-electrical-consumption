@@ -342,7 +342,10 @@ async function obtenerConsumo(esid, meterNumber, browser, energy_provider = null
                 const rows = Array.from(document.querySelectorAll('table[data-testid="table"] tbody tr'));
                 return rows.map(row => {
                   const cells = Array.from(row.querySelectorAll('td'));
-                  return cells.slice(0, 3).map(cell => cell.innerText.trim());
+                      return cells.slice(0, 3).map(cell => {
+                      // Extrae solo el último nodo de texto (ignorando el div.tdBefore)
+                      return cell.lastChild.textContent.trim();
+                    });
                 });
               });
 
@@ -781,13 +784,16 @@ async function obtenerConsumo(esid, meterNumber, browser, energy_provider = null
                   return null;
                 });
 
-                const tableData = await page.evaluate(() => {
-                  const rows = Array.from(document.querySelectorAll('table[data-testid="table"] tbody tr'));
-                  return rows.map(row => {
-                    const cells = Array.from(row.querySelectorAll('td'));
-                    return cells.slice(0, 3).map(cell => cell.innerText.trim());
-                  });
+              const tableData = await page.evaluate(() => {
+                const rows = Array.from(document.querySelectorAll('table[data-testid="table"] tbody tr'));
+                return rows.map(row => {
+                  const cells = Array.from(row.querySelectorAll('td'));
+                      return cells.slice(0, 3).map(cell => {
+                      // Extrae solo el último nodo de texto (ignorando el div.tdBefore)
+                      return cell.lastChild.textContent.trim();
+                    });
                 });
+              });
 
                 return { date: dateHeader, data: tableData };
               };
