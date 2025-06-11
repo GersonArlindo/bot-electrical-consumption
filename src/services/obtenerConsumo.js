@@ -226,9 +226,12 @@ async function obtenerConsumo(esid, meterNumber, browser, energy_provider = null
             // Agregar solo los encabezados que necesitas
             worksheet.addRow(['Start date', 'End date', 'Actual kWh']);
 
+            // Determinar las últimas 12 filas (o menos si hay menos de 12)
+            const lastRows = tableData.slice(-12);
+
             // Agregar los datos y sumar la columna Actual kWh (tercera columna)
             let totalKWh = 0;
-            tableData.forEach(row => {
+            lastRows.forEach(row => {
               worksheet.addRow(row);
 
               // Convertir el valor a número y sumarlo al total
@@ -666,10 +669,12 @@ async function obtenerConsumo(esid, meterNumber, browser, energy_provider = null
 
               // Agregar solo los encabezados que necesitas
               worksheet.addRow(['Start date', 'End date', 'Actual kWh']);
+              // Determinar las últimas 12 filas (o menos si hay menos de 12)
+              const lastRows = tableData.slice(-12);
 
               // Agregar los datos y sumar la columna Actual kWh (tercera columna)
               let totalKWh = 0;
-              tableData.forEach(row => {
+              lastRows.forEach(row => {
                 worksheet.addRow(row);
 
                 // Convertir el valor a número y sumarlo al total

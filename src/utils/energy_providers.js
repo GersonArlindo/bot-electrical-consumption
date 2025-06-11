@@ -28,6 +28,8 @@ const energy_providers = [
     'Stream Energy',
     'Ae texas',
     'bkv-bpp retail',
+    'Snap energy',
+    'ranchero power',
     'octopus',
     'frontier'
 ];
