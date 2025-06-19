@@ -24,6 +24,7 @@ const energy_providers = [
     'Ohmconnect',
     'snap energy',
     'Constellation Newenergy',
+    'Constellation Newenergy INC',
     'Champion Energy',
     'Stream Energy',
     'Ae texas',

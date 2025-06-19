@@ -82,7 +82,7 @@ app.post('/obtener-informacion', async (req, res) => {
 });
 
 app.post('/obtener-informacion/texas-new-mexico', async (req, res) => {
-  const { address, energy_provider } = req.body;
+  const { address, energy_provider, type } = req.body;
   let { meter_number } = req.body; // Cambiado a let
   if (!address) return res.status(400).json({ error: 'Dirección requerida' });
   // Validar y limpiar meter_number
@@ -118,7 +118,7 @@ app.post('/obtener-informacion/texas-new-mexico', async (req, res) => {
     }
 
     try {
-      const consumoData = await obtenerConsumo(esid, meter_number, browser, energy_provider, type = "monthly");
+      const consumoData = await obtenerConsumo(esid, meter_number, browser, energy_provider, type);
       consumo = consumoData?.consumo
       energyProvider = consumoData?.energyProvider
       uniqueDescription = consumoData?.uniqueDescription
