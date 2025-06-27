@@ -40,7 +40,7 @@ app.post('/obtener-informacion', async (req, res) => {
   });
   //const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
 
-  let esid, meterNumber, consumo, energyProvider, addressObtained, uniqueDescription;
+  let esid, meterNumber, meterTotal, consumo, energyProvider, addressObtained, uniqueDescription;
 
   try {
     // Primer intento: obtener ESID
@@ -66,13 +66,14 @@ app.post('/obtener-informacion', async (req, res) => {
       consumo = consumoData?.consumo
       energyProvider = consumoData?.energyProvider
       uniqueDescription = consumoData?.uniqueDescription
+      meterTotal = consumoData?.meterTotal || 0
       clearUsagesInSMT(uniqueDescription)
     } catch (error) {
       return res.status(500).json({ success: false, step: 'obtenerConsumo', error: error.message });
     }
 
     // Si todo bien, responder
-    res.json({ success: true, esid, meterNumber, consumo, energyProvider, addressObtained });
+    res.json({ success: true, esid, meterNumber, consumo, energyProvider, addressObtained, meterTotal });
 
   } catch (error) {
     res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención de información' });
@@ -106,7 +107,7 @@ app.post('/obtener-informacion/texas-new-mexico', async (req, res) => {
   });
   //const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
 
-  let esid, consumo, energyProvider, uniqueDescription;
+  let esid, consumo, energyProvider, meterTotal, uniqueDescription;
 
   try {
     // Primer intento: obtener ESID
@@ -122,13 +123,14 @@ app.post('/obtener-informacion/texas-new-mexico', async (req, res) => {
       consumo = consumoData?.consumo
       energyProvider = consumoData?.energyProvider
       uniqueDescription = consumoData?.uniqueDescription
+      meterTotal = consumoData?.meterTotal || 0
       clearUsagesInSMT(uniqueDescription)
     } catch (error) {
       return res.status(500).json({ success: false, step: 'obtenerConsumo', error: error.message });
     }
 
     // Si todo bien, responder
-    res.json({ success: true, esid, meterNumber: meter_number, consumo, energyProvider, addressObtained: address });
+    res.json({ success: true, esid, meterNumber: meter_number, consumo, energyProvider, addressObtained: address, meterTotal });
     //res.json({ success: true, esid })
   } catch (error) {
     res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención de información' });
@@ -151,7 +153,7 @@ app.post('/obtener-informacion/meter_number', async (req, res) => {
   });
   //const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
 
-  let esid, meterNumber, consumo, energyProvider, addressObtained, uniqueDescription;
+  let esid, meterNumber, meterTotal, consumo, energyProvider, addressObtained, uniqueDescription;
 
   try {
     // Segundo intento: obtener Meter Number
@@ -173,13 +175,14 @@ app.post('/obtener-informacion/meter_number', async (req, res) => {
       consumo = consumoData?.consumo
       energyProvider = consumoData?.energyProvider
       uniqueDescription = consumoData?.uniqueDescription
+      meterTotal = consumoData?.meterTotal || 0
       clearUsagesInSMT(uniqueDescription)
     } catch (error) {
       return res.status(500).json({ success: false, step: 'obtenerConsumo', error: error.message });
     }
 
     // Si todo bien, responder
-    res.json({ success: true, esid, meterNumber, consumo, energyProvider, addressObtained });
+    res.json({ success: true, esid, meterNumber, consumo, energyProvider, addressObtained, meterTotal });
 
   } catch (error) {
     res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención de información' });

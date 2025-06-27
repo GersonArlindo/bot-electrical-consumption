@@ -99,7 +99,7 @@ async function obtenerConsumo(esid, meterNumber, browser, energy_provider = null
       if (alertExists) {
         const alertText = await page.evaluate(el => el.innerText, alertExists);
         console.log(`Mensaje diferente recibido: ${alertText}`);
-        return { consumo: alertText, energyProvider: rep, uniqueDescription };
+        return { consumo: alertText, energyProvider: rep, uniqueDescription, meterTotal: 0 };
       } else {
         console.log(`Se agregó correctamente con ${rep}`);
         addedSuccessfully = true;
@@ -270,7 +270,7 @@ async function obtenerConsumo(esid, meterNumber, browser, energy_provider = null
             const publicUrl = `/downloads/${fileName}`;
 
             // Retornar la dirección donde quedó alojado
-            return { consumo: publicUrl, energyProvider: rep, uniqueDescription };
+            return { consumo: publicUrl, energyProvider: rep, uniqueDescription, meterTotal: totalKWh.toFixed(2) };
           } else if (type == "interval") {
             // Esperar a que cargue el select y seleccionar 'Energy Data Table (15 Minute Intervals)'
             await page.waitForSelector('#reporttype_input');
@@ -455,11 +455,11 @@ async function obtenerConsumo(esid, meterNumber, browser, energy_provider = null
             const publicUrl = `/downloads/${fileName}`;
 
             // Retornar la dirección donde quedó alojado
-            return { consumo: publicUrl, energyProvider: rep, uniqueDescription };
+            return { consumo: publicUrl, energyProvider: rep, uniqueDescription, meterTotal: totalKWh.toFixed(2) };
           }
         } else {
           console.log('❌ No file was downloaded in the expected time');
-          return { consumo: '❌ No file was downloaded in the expected time', energyProvider: null, uniqueDescription }
+          return { consumo: '❌ No file was downloaded in the expected time', energyProvider: null, uniqueDescription, meterTotal: 0 }
         }
         // Espera para ver resultados o continuar
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -467,7 +467,7 @@ async function obtenerConsumo(esid, meterNumber, browser, energy_provider = null
       }
     } else {
       console.log(`No Retail Electric Provider found with name: ${rep}`);
-      return { consumo: `No Retail Electric Provider found with name: ${rep}`, energyProvider: null, uniqueDescription }
+      return { consumo: `No Retail Electric Provider found with name: ${rep}`, energyProvider: null, uniqueDescription, meterTotal: 0 }
     }
 
   } else {
@@ -539,7 +539,7 @@ async function obtenerConsumo(esid, meterNumber, browser, energy_provider = null
             continue;
           } else {
             console.log(`Mensaje diferente recibido: ${alertText}`);
-            return { consumo: alertText, energyProvider: null, uniqueDescription };
+            return { consumo: alertText, energyProvider: null, uniqueDescription, meterTotal: 0 };
           }
         } else {
           console.log(`Se agregó correctamente con ${rep}`);
@@ -716,7 +716,7 @@ async function obtenerConsumo(esid, meterNumber, browser, energy_provider = null
               const publicUrl = `/downloads/${fileName}`;
 
               // Retornar la dirección donde quedó alojado
-              return { consumo: publicUrl, energyProvider: rep, uniqueDescription };
+              return { consumo: publicUrl, energyProvider: rep, uniqueDescription, meterTotal: totalKWh.toFixed(2) };
             } else if (type == "interval") {
               // Esperar a que cargue el select y seleccionar 'Energy Data Table (15 Minute Intervals)'
               await page.waitForSelector('#reporttype_input');
@@ -901,11 +901,11 @@ async function obtenerConsumo(esid, meterNumber, browser, energy_provider = null
               const publicUrl = `/downloads/${fileName}`;
 
               // Retornar la dirección donde quedó alojado
-              return { consumo: publicUrl, energyProvider: rep, uniqueDescription };
+              return { consumo: publicUrl, energyProvider: rep, uniqueDescription, meterTotal: totalKWh.toFixed(2) };
             }
           } else {
             console.log('❌ No file was downloaded in the expected time');
-            return { consumo: "❌ No file was downloaded in the expected time", energyProvider: null, uniqueDescription }
+            return { consumo: "❌ No file was downloaded in the expected time", energyProvider: null, uniqueDescription, meterTotal: 0 }
           }
           // Espera para ver resultados o continuar
           //await new Promise(resolve => setTimeout(resolve, 2000));
@@ -913,7 +913,7 @@ async function obtenerConsumo(esid, meterNumber, browser, energy_provider = null
         }
       } else {
         console.log(`No Retail Electric Provider found with name: ${rep}`);
-        return { consumo: `No Retail Electric Provider found with name: ${rep}`, energyProvider: null, uniqueDescription }
+        return { consumo: `No Retail Electric Provider found with name: ${rep}`, energyProvider: null, uniqueDescription, meterTotal: 0 }
       }
     }
   }
@@ -921,9 +921,9 @@ async function obtenerConsumo(esid, meterNumber, browser, energy_provider = null
   await page.close();
 
   if (addedSuccessfully) {
-    return { consumo: "Could not add smart meter with any of the Retail Electric Provider.", energyProvider: null, uniqueDescription };
+    return { consumo: "Could not add smart meter with any of the Retail Electric Provider.", energyProvider: null, uniqueDescription, meterTotal: 0 };
   } else {
-    return { consumo: "Could not add smart meter with any of the Retail Electric Provider.", energyProvider: null, uniqueDescription };
+    return { consumo: "Could not add smart meter with any of the Retail Electric Provider.", energyProvider: null, uniqueDescription, meterTotal: 0 };
   }
 }
 module.exports = obtenerConsumo;
