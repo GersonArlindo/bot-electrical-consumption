@@ -103,6 +103,15 @@ async function obtenerConsumo(esid, meterNumber, browser, energy_provider = null
       } else {
         console.log(`Se agregó correctamente con ${rep}`);
         addedSuccessfully = true;
+
+        await page.waitForFunction((desc) => {
+          const rows = Array.from(document.querySelectorAll('.rt-tbody .rt-tr-group'));
+          return rows.some(row => {
+            const descriptionDiv = row.querySelector('div[headers="description"]');
+            return descriptionDiv && descriptionDiv.textContent.trim() === desc;
+          });
+        }, { timeout: 10000 }, uniqueDescription);
+        
         const recordFound = await page.evaluate((desc) => {
           const rows = Array.from(document.querySelectorAll('.rt-tbody .rt-tr-group'));
 
@@ -342,10 +351,10 @@ async function obtenerConsumo(esid, meterNumber, browser, energy_provider = null
                 const rows = Array.from(document.querySelectorAll('table[data-testid="table"] tbody tr'));
                 return rows.map(row => {
                   const cells = Array.from(row.querySelectorAll('td'));
-                      return cells.slice(0, 3).map(cell => {
-                      // Extrae solo el último nodo de texto (ignorando el div.tdBefore)
-                      return cell.lastChild.textContent.trim();
-                    });
+                  return cells.slice(0, 3).map(cell => {
+                    // Extrae solo el último nodo de texto (ignorando el div.tdBefore)
+                    return cell.lastChild.textContent.trim();
+                  });
                 });
               });
 
@@ -544,6 +553,15 @@ async function obtenerConsumo(esid, meterNumber, browser, energy_provider = null
         } else {
           console.log(`Se agregó correctamente con ${rep}`);
           addedSuccessfully = true;
+
+          await page.waitForFunction((desc) => {
+            const rows = Array.from(document.querySelectorAll('.rt-tbody .rt-tr-group'));
+            return rows.some(row => {
+              const descriptionDiv = row.querySelector('div[headers="description"]');
+              return descriptionDiv && descriptionDiv.textContent.trim() === desc;
+            });
+          }, { timeout: 10000 }, uniqueDescription);
+
           const recordFound = await page.evaluate((desc) => {
             const rows = Array.from(document.querySelectorAll('.rt-tbody .rt-tr-group'));
 
@@ -784,16 +802,16 @@ async function obtenerConsumo(esid, meterNumber, browser, energy_provider = null
                   return null;
                 });
 
-              const tableData = await page.evaluate(() => {
-                const rows = Array.from(document.querySelectorAll('table[data-testid="table"] tbody tr'));
-                return rows.map(row => {
-                  const cells = Array.from(row.querySelectorAll('td'));
-                      return cells.slice(0, 3).map(cell => {
+                const tableData = await page.evaluate(() => {
+                  const rows = Array.from(document.querySelectorAll('table[data-testid="table"] tbody tr'));
+                  return rows.map(row => {
+                    const cells = Array.from(row.querySelectorAll('td'));
+                    return cells.slice(0, 3).map(cell => {
                       // Extrae solo el último nodo de texto (ignorando el div.tdBefore)
                       return cell.lastChild.textContent.trim();
                     });
+                  });
                 });
-              });
 
                 return { date: dateHeader, data: tableData };
               };
