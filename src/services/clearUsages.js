@@ -1,8 +1,6 @@
 const puppeteer = require('puppeteer');
-const { SMART_METER_USER, SMART_METER_PASS } = require('../utils/config');
 
-
-async function clearUsagesInSMT(uniqueDescription) {
+async function clearUsagesInSMT(uniqueDescription, user, pass) {
     if(!uniqueDescription){
         console.log(`El uniqueDescription es posiblemente Null: ${uniqueDescription}`);
         return;
@@ -18,8 +16,8 @@ async function clearUsagesInSMT(uniqueDescription) {
     await page.goto('https://www.smartmetertexas.com/home', { waitUntil: 'networkidle2' });
 
     // Login
-    await page.type('#userid', SMART_METER_USER);
-    await page.type('#password', SMART_METER_PASS);
+    await page.type('#userid', user);
+    await page.type('#password', pass);
     await page.click('button.btn.btn-large.btn-block.btn-primary');
 
     await page.waitForSelector('.navigation');

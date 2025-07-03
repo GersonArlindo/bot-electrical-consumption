@@ -13,6 +13,7 @@ const { getProposalAuroraLightreach } = require('./services/proposalRequest')
 const clearUsagesInSMT = require('./services/clearUsages')
 const obtenerKpiReport = require('./services/kpiReportBrightFuture')
 const obtenerDisenioSubContractor = require('./services/subcontractorhub')
+const { getNextAvailableAccount, releaseAccount } = require('./utils/smtAccountManager');
 
 const app = express();
 const PORT = process.env.PORT || 4001;
@@ -41,9 +42,10 @@ app.post('/obtener-informacion', async (req, res) => {
   //const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
 
   let esid, meterNumber, meterTotal, consumo, energyProvider, addressObtained, uniqueDescription;
-
+  let account = null;
   try {
-    // Primer intento: obtener ESID
+    account = await getNextAvailableAccount(); // 👈 Obtener cuenta libre
+    console.log(`🔐 Usando cuenta: ${account.user}`);
     try {
       esid = await obtenerESID(address, browser);
       console.log(esid)
@@ -62,12 +64,12 @@ app.post('/obtener-informacion', async (req, res) => {
     }
 
     try {
-      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider, type);
+      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider, type, account);
       consumo = consumoData?.consumo
       energyProvider = consumoData?.energyProvider
       uniqueDescription = consumoData?.uniqueDescription
       meterTotal = consumoData?.meterTotal || 0
-      clearUsagesInSMT(uniqueDescription)
+      clearUsagesInSMT(uniqueDescription, account.user, account.pass)
     } catch (error) {
       return res.status(500).json({ success: false, step: 'obtenerConsumo', error: error.message });
     }
@@ -76,8 +78,10 @@ app.post('/obtener-informacion', async (req, res) => {
     res.json({ success: true, esid, meterNumber, consumo, energyProvider, addressObtained, meterTotal });
 
   } catch (error) {
+    console.log(error)
     res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención de información' });
   } finally {
+    if (account) releaseAccount(account.user); // 👈 Liberar cuenta
     await browser.close();
   }
 });
@@ -108,8 +112,10 @@ app.post('/obtener-informacion/texas-new-mexico', async (req, res) => {
   //const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
 
   let esid, consumo, energyProvider, meterTotal, uniqueDescription;
-
+  let account = null;
   try {
+    account = await getNextAvailableAccount(); // 👈 Obtener cuenta libre
+    console.log(`🔐 Usando cuenta: ${account.user}`);
     // Primer intento: obtener ESID
     try {
       esid = await obtenerESIDWhithElectricityPlans(address, browser);
@@ -119,12 +125,12 @@ app.post('/obtener-informacion/texas-new-mexico', async (req, res) => {
     }
 
     try {
-      const consumoData = await obtenerConsumo(esid, meter_number, browser, energy_provider, type);
+      const consumoData = await obtenerConsumo(esid, meter_number, browser, energy_provider, type, account);
       consumo = consumoData?.consumo
       energyProvider = consumoData?.energyProvider
       uniqueDescription = consumoData?.uniqueDescription
       meterTotal = consumoData?.meterTotal || 0
-      clearUsagesInSMT(uniqueDescription)
+      clearUsagesInSMT(uniqueDescription, account.user, account.pass)
     } catch (error) {
       return res.status(500).json({ success: false, step: 'obtenerConsumo', error: error.message });
     }
@@ -135,6 +141,7 @@ app.post('/obtener-informacion/texas-new-mexico', async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención de información' });
   } finally {
+    if (account) releaseAccount(account.user); // 👈 Liberar cuenta
     await browser.close();
   }
 });
@@ -154,8 +161,10 @@ app.post('/obtener-informacion/meter_number', async (req, res) => {
   //const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
 
   let esid, meterNumber, meterTotal, consumo, energyProvider, addressObtained, uniqueDescription;
-
+  let account = null;
   try {
+    account = await getNextAvailableAccount(); // 👈 Obtener cuenta libre
+    console.log(`🔐 Usando cuenta: ${account.user}`);
     // Segundo intento: obtener Meter Number
     try {
       // Asegurarse de que termine en 'LG'
@@ -171,12 +180,12 @@ app.post('/obtener-informacion/meter_number', async (req, res) => {
     }
 
     try {
-      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider, type);
+      const consumoData = await obtenerConsumo(esid, meterNumber, browser, energy_provider, type, account);
       consumo = consumoData?.consumo
       energyProvider = consumoData?.energyProvider
       uniqueDescription = consumoData?.uniqueDescription
       meterTotal = consumoData?.meterTotal || 0
-      clearUsagesInSMT(uniqueDescription)
+      clearUsagesInSMT(uniqueDescription, account.user, account.pass)
     } catch (error) {
       return res.status(500).json({ success: false, step: 'obtenerConsumo', error: error.message });
     }
@@ -187,6 +196,7 @@ app.post('/obtener-informacion/meter_number', async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención de información' });
   } finally {
+    if (account) releaseAccount(account.user); // 👈 Liberar cuenta
     await browser.close();
   }
 });
@@ -273,8 +283,8 @@ app.post('/kpi-report', async (req, res) => {
 
 
 app.post('/design', async (req, res) => {
-   let { address, first_name, last_name, email, phone } = req.body
-   const browser = await puppeteer.launch({
+  let { address, first_name, last_name, email, phone } = req.body
+  const browser = await puppeteer.launch({
     headless: false,
     slowMo: 50, // Delay base
     //args: ['--no-sandbox', '--window-size=1920,1080', '--disable-http2'],
