@@ -14,7 +14,7 @@ async function obtenerESIDWhithElectricityPlans(address, browser) {
     const esid = await page.evaluate(() => {
         const firstOption = document.querySelector('.autocomplete__option');
         if (firstOption) {
-            const match = firstOption.innerText.match(/\| (\d{17})/);
+            const match = firstOption.innerText.match(/\|\s*(\d{17,})/);
             return match ? match[1] : null;
         }
         return null;
