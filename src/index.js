@@ -311,7 +311,7 @@ app.post('/interconection_search', async (req, res) => {
     slowMo: 50, // Delay base
     //args: ['--no-sandbox', '--window-size=1920,1080', '--disable-http2'],
     defaultViewport: null,
-    args: ['--start-maximized'],
+    args: ['--no-sandbox', '--disable-http2'],
   });
 
   try {
