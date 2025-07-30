@@ -14,6 +14,7 @@ const clearUsagesInSMT = require('./services/clearUsages')
 const obtenerKpiReport = require('./services/kpiReportBrightFuture')
 const obtenerDisenioSubContractor = require('./services/subcontractorhub')
 const { getNextAvailableAccount, releaseAccount } = require('./utils/smtAccountManager');
+const interconectionSearch = require('./services/interconectionSearch')
 
 const app = express();
 const PORT = process.env.PORT || 4001;
@@ -295,6 +296,32 @@ app.post('/design', async (req, res) => {
   try {
     let data = await obtenerDisenioSubContractor(browser, address, first_name, last_name, email, phone);
     res.json({ success: true, data });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención del reporte' });
+  } finally {
+    await browser.close();
+  }
+})
+
+app.post('/interconection_search', async (req, res) => {
+  let { name } = req.body
+  const browser = await puppeteer.launch({
+    headless: true,
+    slowMo: 50, // Delay base
+    //args: ['--no-sandbox', '--window-size=1920,1080', '--disable-http2'],
+    defaultViewport: null,
+    args: ['--start-maximized'],
+  });
+
+  try {
+    let data = await interconectionSearch(name, browser);
+    if (data.success) {
+      res.json({ success: true, data });
+      console.log("Información encontrada:", JSON.stringify(data.data, null, 2));
+    } else {
+      console.error("Error al buscar información:", data.error);
+    }
   } catch (error) {
     console.log(error)
     res.status(500).json({ success: false, step: 'inesperado', error: 'Error en la obtención del reporte' });
