@@ -5,6 +5,7 @@ const accounts = [
   { user: process.env.SMART_METER_USER_3, pass: process.env.SMART_METER_PASS_3, activeSlots: 0 },
   { user: process.env.SMART_METER_USER_4, pass: process.env.SMART_METER_PASS_4, activeSlots: 0 },
   { user: process.env.SMART_METER_USER_5, pass: process.env.SMART_METER_PASS_5, activeSlots: 0 },
+  { user: process.env.SMART_METER_USER_6, pass: process.env.SMART_METER_PASS_6, activeSlots: 0 },
 ];
 
 const MAX_SLOTS = 5;

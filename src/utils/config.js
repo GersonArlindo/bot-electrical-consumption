@@ -11,6 +11,8 @@ module.exports = {
     SMART_METER_PASS_4: process.env.SMART_METER_PASS_4,
     SMART_METER_USER_5: process.env.SMART_METER_USER_5,
     SMART_METER_PASS_5: process.env.SMART_METER_PASS_5,
+    SMART_METER_USER_6: process.env.SMART_METER_USER_6,
+    SMART_METER_PASS_6: process.env.SMART_METER_PASS_6,
     REPCARD_USER: process.env.REPCARD_USER,
     REPCARD_PASSWORD: process.env.REPCARD_PASSWORD,
     REPCARD_API_KEY: process.env.REPCARD_API_KEY,

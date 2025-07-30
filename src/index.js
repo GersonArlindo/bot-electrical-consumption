@@ -90,13 +90,13 @@ app.post('/obtener-informacion/texas-new-mexico', async (req, res) => {
   const { address, energy_provider, type } = req.body;
   let { meter_number } = req.body; // Cambiado a let
   if (!address) return res.status(400).json({ error: 'Dirección requerida' });
-  // Validar y limpiar meter_number
-  if (!meter_number || !/^\d{9}/.test(meter_number)) {
-    return res.status(400).json({ error: 'The meter number must have 9 digits.' });
-  }
+  // Eliminar todo lo que no sea un número
+  meter_number = String(meter_number).replace(/\D/g, '');
 
-  // Limpiar cualquier texto adicional después de los 9 dígitos
-  meter_number = meter_number.substring(0, 9);
+  // Validar que tenga 8 o 9 dígitos esto con el objetivo de poder sacar consumos de TNMP y de CenterPoint
+  if (!/^\d{8,9}$/.test(meter_number)) {
+    return res.status(400).json({ error: 'The meter number must have 8 or 9 digits.' });
+  }
 
   const browser = await puppeteer.launch({
     headless: true,
@@ -302,22 +302,6 @@ app.post('/design', async (req, res) => {
     await browser.close();
   }
 })
-
-/**Aqui ejecutaremos la funcion que limpiara todos los Usos que se han obtenido */
-// cron.schedule('*/10 * * * *', async () => {
-//   try {
-//     const browser = await puppeteer.launch({
-//       headless: true,
-//       args: ['--no-sandbox', '--disable-http2'],
-//       defaultViewport: null,
-//       //args: ['--start-maximized'],
-//     });
-//     await clearUsagesInSMT(browser);
-//     await browser.close();
-//   } catch (error) {
-//     console.error('Error en la tarea programada:', error);
-//   }
-// });
 
 
 // 👉 Cambiamos app.listen por createServer
